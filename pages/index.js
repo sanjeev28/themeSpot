@@ -172,6 +172,82 @@ export default function Home() {
         </div>
       )}
 
+
+ <main style={{ maxWidth: 980, margin: "6px auto 80px", padding: "0 18px" }}>
+        {error && <div style={{ color: "red", textAlign: "center", marginTop: "20px" }}>Error: {error}</div>}
+
+        {result && (
+          <div style={{ marginTop: 18 }}>
+            <div style={{ padding: 20, background: "#fff", borderRadius: 12, boxShadow: "0 6px 20px rgba(0,0,0,0.06)" }}>
+              <div style={{ fontWeight: 800, color: "#0b2b6b", marginBottom: 8 }}>
+                {result.host} is using:
+              </div>
+
+              <div style={{ fontSize: 20, fontWeight: 700, color: "#072048" }}>
+                {getDisplayThemeName(result) || "Theme not detected"}
+                {getThemeVersion(result) ? ` v${getThemeVersion(result)}` : ""}
+              </div>
+
+              {/* Theme version */}
+              {getThemeVersion(result) && (
+                <div style={{ marginTop: 10 }}>
+                  <strong>Theme version:</strong> v{getThemeVersion(result)}
+                </div>
+              )}
+
+              {/* Theme label */}
+              {result.rawLabel && (
+                <div style={{ marginTop: 10 }}>
+                  <strong>Theme label:</strong> {result.rawLabel}
+                  {rawLabelLooksCustom(result) && (
+                    <span style={{ color: "#b4533c" }}> (To look custom)</span>
+                  )}
+                </div>
+              )}
+
+              {/* Shopify store domain */}
+              {result.shopDomain && (
+                <div style={{ marginTop: 10 }}>
+                  <strong>Shopify store domain:</strong> {result.shopDomain}
+                </div>
+              )}
+
+              {/* Main domain */}
+              {result.host && (
+                <div style={{ marginTop: 10 }}>
+                  <strong>Main domain name:</strong> {result.host}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div style={{ marginTop: 14, display: "flex", gap: 10 }}>
+                {getDisplayThemeName(result) && (
+                  <a
+                    href={`${AFFILIATE_BASE}?theme=${encodeURIComponent(getDisplayThemeName(result))}&site=${encodeURIComponent(result.host || "")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ background: "#0b2b6b", color: "#fff", padding: "10px 14px", borderRadius: 8, textDecoration: "none", fontWeight: 700 }}
+                  >
+                    Get this theme
+                  </a>
+                )}
+
+                <button
+                  onClick={() => {
+                    const link = result.host && (result.host.includes("://") ? result.host : "https://" + result.host);
+                    if (link) window.open(link, "_blank");
+                  }}
+                  style={{ border: "1px solid #0b2b6b", background: "#fff", color: "#0b2b6b", padding: "10px 14px", borderRadius: 8, fontWeight: 700 }}
+                >
+                  Visit site
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+
+
       {/* Info Cards */}
       <div className="cards-grid">
         <div className="info-card">
