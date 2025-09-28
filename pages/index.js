@@ -1,16 +1,35 @@
 // pages/index.js
-import { useState, useEffect } from "react";
+import Head from "next/head";
+import { useState } from "react";
+
+const AFF = process.env.NEXT_PUBLIC_AFFILIATE_BASE || "https://grabthatdeals.com/go/shopify/";
+
+function getDisplayThemeName(r) {
+  if (!r) return null;
+  return r.canonicalThemeName || r.schema_name || r.dataThemeName || r.rawLabel || r.themeName || null;
+}
+function getThemeVersion(r) {
+  if (!r) return null;
+  return r.schema_version || r.dataThemeVersion || r.themeVersion || null;
+}
+function rawLabelLooksCustom(r) {
+  if (!r || !r.rawLabel) return false;
+  const raw = r.rawLabel.trim().toLowerCase();
+  const canon = (getDisplayThemeName(r) || "").trim().toLowerCase();
+  if (!canon) return false;
+  return raw !== canon;
+}
 
 export default function Home() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
 
-  const AFFILIATE_BASE = "https://grabthatdeals.com/go/shopify/";
-
-  const handleDetect = async () => {
+  async function detectTheme() {
     if (!url) return alert("Please enter a store URL");
     setLoading(true);
+    setError("");
     setResult(null);
 
     try {
@@ -20,80 +39,88 @@ export default function Home() {
         body: JSON.stringify({ url }),
       });
       const data = await res.json();
-      setResult({ host: new URL(url.includes("://") ? url : "https://" + url).hostname, ...data });
-    } catch (err) {
-      alert("Error: " + err.message);
+      if (data.error) throw new Error(data.error);
+      let host;
+      try {
+        host = new URL(url.includes("://") ? url : "https://" + url).hostname;
+      } catch (e) {
+        host = url;
+      }
+      setResult({ host, ...data });
+    } catch (e) {
+      setError(String(e.message || e));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
-
-  // FAQ accordion toggle
-  useEffect(() => {
-    const qs = document.querySelectorAll(".accordion .q");
-    qs.forEach((q) => {
-      q.addEventListener("click", () => {
-        const next = q.nextElementSibling;
-        const open = next.style.display === "block";
-        document.querySelectorAll(".accordion .a").forEach((a) => (a.style.display = "none"));
-        document.querySelectorAll(".accordion .q div").forEach((d) => (d.textContent = "+"));
-        if (!open) {
-          next.style.display = "block";
-          q.querySelector("div").textContent = "−";
-        }
-      });
-    });
-  }, []);
+  }
 
   return (
-    <div>
-      {/* Topbar */}
+    <>
+      <Head>
+        <title>ThemeSpot — Shopify Theme Detector</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@300;400;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
+
       <div className="topbar">
         <div className="inner">Support &nbsp;&nbsp;|&nbsp;&nbsp; Contact Sales</div>
       </div>
 
-      {/* Header */}
       <header>
         <div className="wrap header-row">
           <div className="brand">
             <div className="logo-mark">TS</div>
             <div>
               <h1>ThemeSpot</h1>
-              <div style={{ fontSize: "13px", color: "var(--muted)" }}>Shopify Theme Finder</div>
+              <div style={{ fontSize: 13, color: "var(--muted)" }}>Shopify Theme Finder</div>
             </div>
           </div>
           <nav>
-            <a href="#">Products</a>
-            <a href="#">Solutions</a>
-            <a href="#">Resources</a>
-            <a href="#">Pricing</a>
+            <a>Products</a>
+            <a>Solutions</a>
+            <a>Resources</a>
+            <a>Pricing</a>
           </nav>
         </div>
       </header>
 
-      {/* Hero */}
       <div className="hero-banner">
         <div className="hero-inner">
           <div className="hero-left">
             <div className="eyebrow">ThemeSpot</div>
             <h2>Find any Shopify store's theme instantly</h2>
             <p>
-              Paste a Shopify store URL and ThemeSpot will detect the theme, version and provide a quick link to get the theme or view its listing.
+              Paste a Shopify store URL and ThemeSpot will detect the theme, version and provide a quick link to get the theme or view its
+              listing.
             </p>
 
             <div className="cta-row">
-              <button className="btn">Detect a theme</button>
-              <button className="btn-outline">Get browser extension</button>
+              <button className="btn" onClick={() => document.getElementById("storeUrl")?.focus()}>
+                Detect a theme
+              </button>
+              <button
+                className="btn-outline"
+                onClick={() => {
+                  alert("Browser extension coming soon");
+                }}
+              >
+                Get browser extension
+              </button>
             </div>
 
-            <div className="search-card">
-              <div style={{ fontSize: "13px", color: "var(--muted)", marginBottom: "8px" }}>Enter store URL</div>
+            <div className="search-card" style={{ marginTop: 22 }}>
+              <div style={{ fontSize: 13, color: "var(--muted)", marginBottom: 8 }}>Enter store URL</div>
               <div className="search-row">
                 <input
+                  id="storeUrl"
+                  placeholder="e.g. overlaysnow.com or https://overlaysnow.com"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="e.g. overlaysnow.com or https://overlaysnow.com"
                 />
-                <button onClick={handleDetect} className="btn" disabled={loading}>
+                <button id="detectBtn" className="btn" style={{ padding: "12px 20px" }} onClick={detectTheme} disabled={loading}>
                   {loading ? "Detecting..." : "Detect"}
                 </button>
               </div>
@@ -102,11 +129,9 @@ export default function Home() {
 
           <div className="hero-right">
             <div className="quick-card">
-              <div style={{ fontWeight: "700", fontSize: "15px", color: "var(--navy)", marginBottom: "8px" }}>
-                Quick actions
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <button className="btn" style={{ width: "100%" }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: "var(--navy)", marginBottom: 8 }}>Quick actions</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <button className="btn" style={{ width: "100%" }} onClick={() => alert("install coming soon")}>
                   Install Extension
                 </button>
                 <button className="btn-outline" style={{ width: "100%" }}>
@@ -118,165 +143,62 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Result */}
-      {result && (
-  <div style={{ marginTop: 18 }}>
-    <div className="result-card" style={{ alignItems: "center", justifyContent: "space-between" }}>
-      {/* left block: icon + text */}
-      <div style={{ display: "flex", gap: 16, alignItems: "center", flex: 1 }}>
-        <div
-          style={{
-            width: 72,
-            height: 72,
-            borderRadius: 12,
-            background: "linear-gradient(135deg,var(--accent), var(--accent-2))",
-            color: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: 700,
-            fontSize: 22,
-            flexShrink: 0,
-          }}
-        >
-          🌐
-        </div>
-
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 800, color: "var(--navy)", fontSize: 18 }}>
-            {result.host} <span style={{ fontWeight: 600, color: "#333" }}>is using:</span>
+      <main style={{ maxWidth: "var(--container)", margin: "18px auto", padding: "0 20px" }}>
+        {error && (
+          <div style={{ color: "red", marginTop: 12 }}>
+            <strong>Error:</strong> {error}
           </div>
-
-          <div style={{ marginTop: 8, fontSize: 18, fontWeight: 700, color: "#072048" }}>
-            {getDisplayThemeName(result) || "Theme not detected"}
-            {getThemeVersion(result) ? ` v${getThemeVersion(result)}` : ""}
-          </div>
-
-          <div style={{ marginTop: 10, color: "var(--muted)" }}>
-            {getThemeVersion(result) && (
-              <div style={{ marginBottom: 6 }}>
-                <strong style={{ color: "#000" }}>Theme version:</strong> {getThemeVersion(result)}
-              </div>
-            )}
-
-            {result.rawLabel && (
-              <div style={{ marginBottom: 6 }}>
-                <strong style={{ color: "#000" }}>Theme label:</strong> {result.rawLabel}
-                {rawLabelLooksCustom(result) && <span style={{ color: "#b4533c" }}> (To look custom)</span>}
-              </div>
-            )}
-
-            {result.shopDomain && (
-              <div style={{ marginBottom: 6 }}>
-                <strong style={{ color: "#000" }}>Shopify store domain:</strong> {result.shopDomain}
-              </div>
-            )}
-
-            <div>
-              <strong style={{ color: "#000" }}>Main domain name:</strong> {result.host}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* right block: actions */}
-      <div style={{ display: "flex", gap: 12, marginLeft: 18 }}>
-        {getDisplayThemeName(result) && (
-          <a
-            href={`${AFF}?theme=${encodeURIComponent(getDisplayThemeName(result))}&site=${encodeURIComponent(result.host || "")}`}
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              background: "var(--navy)",
-              color: "#fff",
-              padding: "10px 18px",
-              borderRadius: 10,
-              textDecoration: "none",
-              fontWeight: 800,
-              boxShadow: "0 8px 20px rgba(11,43,107,0.12)",
-            }}
-          >
-            Get this theme
-          </a>
         )}
-
-        <button
-          onClick={() => {
-            const link = result.host && (result.host.includes("://") ? result.host : "https://" + result.host);
-            if (link) window.open(link, "_blank");
-          }}
-          style={{
-            border: "1.5px solid var(--navy)",
-            background: "#fff",
-            color: "var(--navy)",
-            padding: "10px 16px",
-            borderRadius: 10,
-            fontWeight: 700,
-            minWidth: 110,
-          }}
-        >
-          Visit site
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
- <main style={{ maxWidth: 980, margin: "6px auto 80px", padding: "0 18px" }}>
-        {error && <div style={{ color: "red", textAlign: "center", marginTop: "20px" }}>Error: {error}</div>}
 
         {result && (
           <div style={{ marginTop: 18 }}>
-            <div style={{ padding: 20, background: "#fff", borderRadius: 12, boxShadow: "0 6px 20px rgba(0,0,0,0.06)" }}>
-              <div style={{ fontWeight: 800, color: "#0b2b6b", marginBottom: 8 }}>
-                {result.host} is using:
-              </div>
+            <div className="result-card" style={{ flexDirection: "column", alignItems: "flex-start" }}>
+              <div style={{ fontWeight: 800, color: "var(--navy)", marginBottom: 8 }}>{result.host} is using:</div>
 
               <div style={{ fontSize: 20, fontWeight: 700, color: "#072048" }}>
                 {getDisplayThemeName(result) || "Theme not detected"}
                 {getThemeVersion(result) ? ` v${getThemeVersion(result)}` : ""}
               </div>
 
-              {/* Theme version */}
               {getThemeVersion(result) && (
                 <div style={{ marginTop: 10 }}>
                   <strong>Theme version:</strong> v{getThemeVersion(result)}
                 </div>
               )}
 
-              {/* Theme label */}
               {result.rawLabel && (
                 <div style={{ marginTop: 10 }}>
                   <strong>Theme label:</strong> {result.rawLabel}
-                  {rawLabelLooksCustom(result) && (
-                    <span style={{ color: "#b4533c" }}> (To look custom)</span>
-                  )}
+                  {rawLabelLooksCustom(result) && <span style={{ color: "#b4533c" }}> (To look custom)</span>}
                 </div>
               )}
 
-              {/* Shopify store domain */}
               {result.shopDomain && (
                 <div style={{ marginTop: 10 }}>
                   <strong>Shopify store domain:</strong> {result.shopDomain}
                 </div>
               )}
 
-              {/* Main domain */}
               {result.host && (
                 <div style={{ marginTop: 10 }}>
                   <strong>Main domain name:</strong> {result.host}
                 </div>
               )}
 
-              {/* Actions */}
               <div style={{ marginTop: 14, display: "flex", gap: 10 }}>
                 {getDisplayThemeName(result) && (
                   <a
-                    href={`${AFFILIATE_BASE}?theme=${encodeURIComponent(getDisplayThemeName(result))}&site=${encodeURIComponent(result.host || "")}`}
+                    href={`${AFF}?theme=${encodeURIComponent(getDisplayThemeName(result))}&site=${encodeURIComponent(result.host || "")}`}
                     target="_blank"
                     rel="noreferrer"
-                    style={{ background: "#0b2b6b", color: "#fff", padding: "10px 14px", borderRadius: 8, textDecoration: "none", fontWeight: 700 }}
+                    style={{
+                      background: "var(--navy)",
+                      color: "#fff",
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      textDecoration: "none",
+                      fontWeight: 700,
+                    }}
                   >
                     Get this theme
                   </a>
@@ -287,7 +209,14 @@ export default function Home() {
                     const link = result.host && (result.host.includes("://") ? result.host : "https://" + result.host);
                     if (link) window.open(link, "_blank");
                   }}
-                  style={{ border: "1px solid #0b2b6b", background: "#fff", color: "#0b2b6b", padding: "10px 14px", borderRadius: 8, fontWeight: 700 }}
+                  style={{
+                    border: "1px solid var(--navy)",
+                    background: "#fff",
+                    color: "var(--navy)",
+                    padding: "10px 14px",
+                    borderRadius: 8,
+                    fontWeight: 700,
+                  }}
                 >
                   Visit site
                 </button>
@@ -296,93 +225,19 @@ export default function Home() {
           </div>
         )}
 
-      {/* Info Cards */}
-      <div className="cards-grid">
-        <div className="info-card">
-          <div>
-            <h4>Theme Customization</h4>
-            <p>Get help customizing a theme to match your brand.</p>
-          </div>
-          <div className="card-arrow">→</div>
-        </div>
-
-        <div className="info-card">
-          <div>
-            <h4>Top themes for SEO</h4>
-            <p>Discover themes optimized for speed & SEO.</p>
-          </div>
-          <div className="card-arrow">→</div>
-        </div>
-
-        <div className="info-card">
-          <div>
-            <h4>Theme store links</h4>
-            <p>Direct links to theme listings and demos.</p>
-          </div>
-          <div className="card-arrow">→</div>
-        </div>
-
-        <div className="info-card">
-          <div>
-            <h4>Compare themes</h4>
-            <p>Side-by-side comparison to choose the right theme.</p>
-          </div>
-          <div className="card-arrow">→</div>
-        </div>
-      </div>
-
-      {/* FAQ */}
-      <section className="faq-section">
-        <div className="faq-grid">
-          <div className="faq-card">
-            <h3>Frequently Asked Questions</h3>
-            <div className="accordion">
-              <div className="q">
-                <h4>How does ThemeSpot detect a Shopify theme?</h4>
-                <div>+</div>
-              </div>
-              <div className="a">
-                We scan HTML for <code>window.Shopify.theme</code>, <code>schema_name</code>, or <code>data-theme-name</code>.
-              </div>
-
-              <div className="q">
-                <h4>Is it always accurate?</h4>
-                <div>+</div>
-              </div>
-              <div className="a">Not always. Heavily customized themes may look "custom".</div>
-
-              <div className="q">
-                <h4>Do you store scanned site data?</h4>
-                <div>+</div>
-              </div>
-              <div className="a">No, this demo does not store scan results.</div>
-
-              <div className="q">
-                <h4>Can I try the theme directly?</h4>
-                <div>+</div>
-              </div>
-              <div className="a">Yes, use the "Get this theme" button to view or try the theme.</div>
+        <section style={{ marginTop: 28 }}>
+          <h3 style={{ color: "var(--navy)" }}>FAQ</h3>
+          <details style={{ marginTop: 8 }}>
+            <summary>How does ThemeSpot detect a Shopify theme?</summary>
+            <div style={{ paddingTop: 8, color: "var(--muted)" }}>
+              We check authoritative signals in the HTML/JS: <code>Shopify.theme</code> JSON (schema_name, schema_version),{" "}
+              <code>data-theme-name</code> attributes on scripts, and asset paths containing <code>/themes/</code>.
             </div>
-          </div>
+          </details>
+        </section>
+      </main>
 
-          <aside className="faq-side">
-            <div className="side-card">
-              <strong>Tip</strong>
-              <div style={{ color: "var(--muted)", marginTop: "6px", fontSize: "13px" }}>
-                Paste the store's root URL (example.com) for best results.
-              </div>
-            </div>
-
-            <div className="side-card">
-              <strong>Contact</strong>
-              <div style={{ color: "var(--muted)", marginTop: "6px", fontSize: "13px" }}>support@example.com</div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer>© 2025 ThemeSpot — designed with care</footer>
-    </div>
+      <footer style={{ textAlign: "center", padding: "20px", color: "var(--muted)" }}>© 2025 ThemeSpot</footer>
+    </>
   );
 }
