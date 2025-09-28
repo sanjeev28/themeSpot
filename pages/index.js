@@ -20,6 +20,7 @@ export default function Home() {
         body: JSON.stringify({ url }),
       });
       const data = await res.json();
+
       // host from input (safely handles with/without protocol)
       const host = (() => {
         try {
@@ -28,6 +29,7 @@ export default function Home() {
           return url;
         }
       })();
+
       setResult({ host, ...data });
     } catch (err) {
       alert("Error: " + err.message);
@@ -81,6 +83,7 @@ export default function Home() {
       {/* Hero */}
       <div className="hero-banner">
         <div className="hero-inner">
+          {/* LEFT */}
           <div className="hero-left">
             <div className="eyebrow">ThemeSpot</div>
             <h2>Find any Shopify store's theme instantly</h2>
@@ -95,9 +98,9 @@ export default function Home() {
               </button>
               <button className="btn-outline">Get browser extension</button>
             </div>
+          </div>
 
-           
-
+          {/* RIGHT (separate column, not inside hero-left) */}
           <div className="hero-right">
             <div className="quick-card">
               <div style={{ fontWeight: 700, fontSize: 15, color: "var(--navy)", marginBottom: 8 }}>Quick actions</div>
@@ -113,26 +116,25 @@ export default function Home() {
           </div>
         </div>
       </div>
-</div>
 
-       {/* Search */}
-<div className="wrap" style={{ marginTop: 20 }}>
-            <div className="search-card">
-              <div style={{ fontSize: "13px", color: "var(--muted)", marginBottom: "8px" }}>Enter store URL</div>
-              <div className="search-row">
-                <input
-                  id="storeUrl"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="e.g. overlaysnow.com or https://overlaysnow.com"
-                />
-                <button onClick={handleDetect} className="btn" disabled={loading}>
-                  {loading ? "Detecting..." : "Detect"}
-                </button>
-              </div>
-            </div>
+      {/* Search (separate block below hero) */}
+      <div className="wrap" style={{ marginTop: 20 }}>
+        <div className="search-card">
+          <div style={{ fontSize: "13px", color: "var(--muted)", marginBottom: "8px" }}>Enter store URL</div>
+          <div className="search-row">
+            <input
+              id="storeUrl"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="e.g. overlaysnow.com or https://overlaysnow.com"
+            />
+            <button onClick={handleDetect} className="btn" disabled={loading}>
+              {loading ? "Detecting..." : "Detect"}
+            </button>
           </div>
- </div>
+        </div>
+      </div>
+
       {/* Result — style #2 with Theme label + Shopify store domain */}
       {result && (
         <div className="wrap" style={{ marginTop: 20 }}>
@@ -165,9 +167,7 @@ export default function Home() {
                 "Unknown";
 
               const themeVersion = result.themeVersion || result.schema_version || result.dataThemeVersion || null;
-
               const themeLabel = result.themeLabel || result.rawLabel || null;
-
               const shopDomain = result.shopifyDomain || result.shopDomain || result.shopify_domain || null;
 
               return (
@@ -280,8 +280,7 @@ export default function Home() {
                 <div>+</div>
               </div>
               <div className="a">
-                We scan HTML for <code>window.Shopify.theme</code>, <code>schema_name</code>, or{" "}
-                <code>data-theme-name</code>.
+                We scan HTML for <code>window.Shopify.theme</code>, <code>schema_name</code>, or <code>data-theme-name</code>.
               </div>
 
               <div className="q">
