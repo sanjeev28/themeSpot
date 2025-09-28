@@ -113,6 +113,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+</div>
 
        {/* Search */}
 <div className="wrap" style={{ marginTop: 20 }}>
