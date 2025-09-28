@@ -126,7 +126,7 @@ export default function Home() {
               id="storeUrl"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="e.g. overlaysnow.com or https://overlaysnow.com"
+              placeholder="e.g. example.com or https://example.com"
             />
             <button onClick={handleDetect} className="btn" disabled={loading}>
               {loading ? "Detecting..." : "Detect"}
@@ -210,7 +210,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="result-actions">
+                  <div className="result-actions cta-row">
                     {themeName && (
                       <a
                         href={`${AFFILIATE_BASE}?theme=${encodeURIComponent(themeName)}&site=${encodeURIComponent(
