@@ -96,22 +96,7 @@ export default function Home() {
               <button className="btn-outline">Get browser extension</button>
             </div>
 
-            {/* Search */}
-            <div className="search-card">
-              <div style={{ fontSize: "13px", color: "var(--muted)", marginBottom: "8px" }}>Enter store URL</div>
-              <div className="search-row">
-                <input
-                  id="storeUrl"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="e.g. overlaysnow.com or https://overlaysnow.com"
-                />
-                <button onClick={handleDetect} className="btn" disabled={loading}>
-                  {loading ? "Detecting..." : "Detect"}
-                </button>
-              </div>
-            </div>
-          </div>
+           
 
           <div className="hero-right">
             <div className="quick-card">
@@ -128,7 +113,22 @@ export default function Home() {
           </div>
         </div>
       </div>
-
+       {/* Search */}
+            <div className="search-card">
+              <div style={{ fontSize: "13px", color: "var(--muted)", marginBottom: "8px" }}>Enter store URL</div>
+              <div className="search-row">
+                <input
+                  id="storeUrl"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="e.g. overlaysnow.com or https://overlaysnow.com"
+                />
+                <button onClick={handleDetect} className="btn" disabled={loading}>
+                  {loading ? "Detecting..." : "Detect"}
+                </button>
+              </div>
+            </div>
+          </div>
       {/* Result — style #2 with Theme label + Shopify store domain */}
       {result && (
         <div className="wrap" style={{ marginTop: 20 }}>
