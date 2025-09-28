@@ -113,7 +113,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+
        {/* Search */}
+<div className="wrap" style={{ marginTop: 20 }}>
             <div className="search-card">
               <div style={{ fontSize: "13px", color: "var(--muted)", marginBottom: "8px" }}>Enter store URL</div>
               <div className="search-row">
@@ -129,6 +131,7 @@ export default function Home() {
               </div>
             </div>
           </div>
+ </div>
       {/* Result — style #2 with Theme label + Shopify store domain */}
       {result && (
         <div className="wrap" style={{ marginTop: 20 }}>
