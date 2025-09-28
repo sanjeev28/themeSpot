@@ -120,57 +120,107 @@ export default function Home() {
 
       {/* Result */}
       {result && (
-        <div className="wrap" style={{ marginTop: "20px" }}>
-          <div className="result-card">
-            <div
-              style={{
-                width: "72px",
-                height: "72px",
-                borderRadius: "12px",
-                background: "linear-gradient(135deg,var(--accent), var(--accent-2))",
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "700",
-                fontSize: "22px",
-              }}
-            >
-              🌐
-            </div>
-            <div className="result-meta">
-              <div className="site">{result.host} is using: {result.themeName || "Unknown"}</div>
-              {result.themeVersion && <div className="theme">Theme version: {result.themeVersion}</div>}
-              {result.themeLabel && (
-                <div className="theme">
-                  Theme label: {result.themeLabel}
-                  {result.themeLabel !== result.themeName && <span style={{ color: "brown" }}> (To look custom)</span>}
-                </div>
-              )}
-              {result.shopifyDomain && (
-                <div className="theme">Shopify store domain: {result.shopifyDomain}</div>
-              )}
-              <div className="theme">Main domain name: {result.host}</div>
-            </div>
-            <div className="result-actions">
-              <a
-                href={`${AFFILIATE_BASE}?theme=${encodeURIComponent(result.themeName || "shopify")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn"
-              >
-                Get this theme
-              </a>
-              <button
-                className="btn-outline"
-                onClick={() => window.open("https://" + result.host, "_blank")}
-              >
-                Visit site
-              </button>
+  <div style={{ marginTop: 18 }}>
+    <div className="result-card" style={{ alignItems: "center", justifyContent: "space-between" }}>
+      {/* left block: icon + text */}
+      <div style={{ display: "flex", gap: 16, alignItems: "center", flex: 1 }}>
+        <div
+          style={{
+            width: 72,
+            height: 72,
+            borderRadius: 12,
+            background: "linear-gradient(135deg,var(--accent), var(--accent-2))",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 700,
+            fontSize: 22,
+            flexShrink: 0,
+          }}
+        >
+          🌐
+        </div>
+
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 800, color: "var(--navy)", fontSize: 18 }}>
+            {result.host} <span style={{ fontWeight: 600, color: "#333" }}>is using:</span>
+          </div>
+
+          <div style={{ marginTop: 8, fontSize: 18, fontWeight: 700, color: "#072048" }}>
+            {getDisplayThemeName(result) || "Theme not detected"}
+            {getThemeVersion(result) ? ` v${getThemeVersion(result)}` : ""}
+          </div>
+
+          <div style={{ marginTop: 10, color: "var(--muted)" }}>
+            {getThemeVersion(result) && (
+              <div style={{ marginBottom: 6 }}>
+                <strong style={{ color: "#000" }}>Theme version:</strong> {getThemeVersion(result)}
+              </div>
+            )}
+
+            {result.rawLabel && (
+              <div style={{ marginBottom: 6 }}>
+                <strong style={{ color: "#000" }}>Theme label:</strong> {result.rawLabel}
+                {rawLabelLooksCustom(result) && <span style={{ color: "#b4533c" }}> (To look custom)</span>}
+              </div>
+            )}
+
+            {result.shopDomain && (
+              <div style={{ marginBottom: 6 }}>
+                <strong style={{ color: "#000" }}>Shopify store domain:</strong> {result.shopDomain}
+              </div>
+            )}
+
+            <div>
+              <strong style={{ color: "#000" }}>Main domain name:</strong> {result.host}
             </div>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* right block: actions */}
+      <div style={{ display: "flex", gap: 12, marginLeft: 18 }}>
+        {getDisplayThemeName(result) && (
+          <a
+            href={`${AFF}?theme=${encodeURIComponent(getDisplayThemeName(result))}&site=${encodeURIComponent(result.host || "")}`}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              background: "var(--navy)",
+              color: "#fff",
+              padding: "10px 18px",
+              borderRadius: 10,
+              textDecoration: "none",
+              fontWeight: 800,
+              boxShadow: "0 8px 20px rgba(11,43,107,0.12)",
+            }}
+          >
+            Get this theme
+          </a>
+        )}
+
+        <button
+          onClick={() => {
+            const link = result.host && (result.host.includes("://") ? result.host : "https://" + result.host);
+            if (link) window.open(link, "_blank");
+          }}
+          style={{
+            border: "1.5px solid var(--navy)",
+            background: "#fff",
+            color: "var(--navy)",
+            padding: "10px 16px",
+            borderRadius: 10,
+            fontWeight: 700,
+            minWidth: 110,
+          }}
+        >
+          Visit site
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Info Cards */}
       <div className="cards-grid">
