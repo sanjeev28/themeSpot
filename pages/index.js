@@ -20,7 +20,15 @@ export default function Home() {
         body: JSON.stringify({ url }),
       });
       const data = await res.json();
-      setResult({ host: new URL(url.includes("://") ? url : "https://" + url).hostname, ...data });
+      // host from input (safely handles with/without protocol)
+      const host = (() => {
+        try {
+          return new URL(url.includes("://") ? url : "https://" + url).hostname;
+        } catch {
+          return url;
+        }
+      })();
+      setResult({ host, ...data });
     } catch (err) {
       alert("Error: " + err.message);
     }
@@ -77,18 +85,23 @@ export default function Home() {
             <div className="eyebrow">ThemeSpot</div>
             <h2>Find any Shopify store's theme instantly</h2>
             <p>
-              Paste a Shopify store URL and ThemeSpot will detect the theme, version and provide a quick link to get the theme or view its listing.
+              Paste a Shopify store URL and ThemeSpot will detect the theme, version and provide a quick link to get the
+              theme or view its listing.
             </p>
 
             <div className="cta-row">
-              <button className="btn">Detect a theme</button>
+              <button className="btn" onClick={() => document.getElementById("storeUrl")?.focus()}>
+                Detect a theme
+              </button>
               <button className="btn-outline">Get browser extension</button>
             </div>
 
+            {/* Search */}
             <div className="search-card">
               <div style={{ fontSize: "13px", color: "var(--muted)", marginBottom: "8px" }}>Enter store URL</div>
               <div className="search-row">
                 <input
+                  id="storeUrl"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="e.g. overlaysnow.com or https://overlaysnow.com"
@@ -102,10 +115,8 @@ export default function Home() {
 
           <div className="hero-right">
             <div className="quick-card">
-              <div style={{ fontWeight: "700", fontSize: "15px", color: "var(--navy)", marginBottom: "8px" }}>
-                Quick actions
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: "var(--navy)", marginBottom: 8 }}>Quick actions</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 <button className="btn" style={{ width: "100%" }}>
                   Install Extension
                 </button>
@@ -118,82 +129,106 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Result */}
-     
- <main style={{ maxWidth: 980, margin: "6px auto 80px", padding: "0 18px" }}>
-        {error && <div style={{ color: "red", textAlign: "center", marginTop: "20px" }}>Error: {error}</div>}
-
-        {result && (
-          <div style={{ marginTop: 18 }}>
-            <div style={{ padding: 20, background: "#fff", borderRadius: 12, boxShadow: "0 6px 20px rgba(0,0,0,0.06)" }}>
-              <div style={{ fontWeight: 800, color: "#0b2b6b", marginBottom: 8 }}>
-                {result.host} is using:
-              </div>
-
-              <div style={{ fontSize: 20, fontWeight: 700, color: "#072048" }}>
-                {getDisplayThemeName(result) || "Theme not detected"}
-                {getThemeVersion(result) ? ` v${getThemeVersion(result)}` : ""}
-              </div>
-
-              {/* Theme version */}
-              {getThemeVersion(result) && (
-                <div style={{ marginTop: 10 }}>
-                  <strong>Theme version:</strong> v{getThemeVersion(result)}
-                </div>
-              )}
-
-              {/* Theme label */}
-              {result.rawLabel && (
-                <div style={{ marginTop: 10 }}>
-                  <strong>Theme label:</strong> {result.rawLabel}
-                  {rawLabelLooksCustom(result) && (
-                    <span style={{ color: "#b4533c" }}> (To look custom)</span>
-                  )}
-                </div>
-              )}
-
-              {/* Shopify store domain */}
-              {result.shopDomain && (
-                <div style={{ marginTop: 10 }}>
-                  <strong>Shopify store domain:</strong> {result.shopDomain}
-                </div>
-              )}
-
-              {/* Main domain */}
-              {result.host && (
-                <div style={{ marginTop: 10 }}>
-                  <strong>Main domain name:</strong> {result.host}
-                </div>
-              )}
-
-              {/* Actions */}
-              <div style={{ marginTop: 14, display: "flex", gap: 10 }}>
-                {getDisplayThemeName(result) && (
-                  <a
-                    href={`${AFFILIATE_BASE}?theme=${encodeURIComponent(getDisplayThemeName(result))}&site=${encodeURIComponent(result.host || "")}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ background: "#0b2b6b", color: "#fff", padding: "10px 14px", borderRadius: 8, textDecoration: "none", fontWeight: 700 }}
-                  >
-                    Get this theme
-                  </a>
-                )}
-
-                <button
-                  onClick={() => {
-                    const link = result.host && (result.host.includes("://") ? result.host : "https://" + result.host);
-                    if (link) window.open(link, "_blank");
-                  }}
-                  style={{ border: "1px solid #0b2b6b", background: "#fff", color: "#0b2b6b", padding: "10px 14px", borderRadius: 8, fontWeight: 700 }}
-                >
-                  Visit site
-                </button>
-              </div>
+      {/* Result — style #2 with Theme label + Shopify store domain */}
+      {result && (
+        <div className="wrap" style={{ marginTop: 20 }}>
+          <div className="result-card">
+            <div
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: 12,
+                background: "linear-gradient(135deg,var(--accent), var(--accent-2))",
+                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 700,
+                fontSize: 22,
+              }}
+            >
+              🌐
             </div>
+
+            {/* Result card data mapping (handles alternate keys from API) */}
+            {(() => {
+              const themeName =
+                result.themeName ||
+                result.canonicalThemeName ||
+                result.schema_name ||
+                result.dataThemeName ||
+                result.rawLabel ||
+                "Unknown";
+
+              const themeVersion = result.themeVersion || result.schema_version || result.dataThemeVersion || null;
+
+              const themeLabel = result.themeLabel || result.rawLabel || null;
+
+              const shopDomain = result.shopifyDomain || result.shopDomain || result.shopify_domain || null;
+
+              return (
+                <>
+                  <div className="result-meta">
+                    <div className="site">
+                      {result.host} <span style={{ fontWeight: 600, color: "#333" }}>is using:</span>
+                    </div>
+
+                    <div style={{ marginTop: 8, fontSize: 20, fontWeight: 800, color: "#072048" }}>
+                      {themeName}
+                      {themeVersion ? ` v${themeVersion}` : ""}
+                    </div>
+
+                    {themeVersion && (
+                      <div className="theme" style={{ marginTop: 8 }}>
+                        <strong>Theme version:</strong> v{themeVersion}
+                      </div>
+                    )}
+
+                    {themeLabel && (
+                      <div className="theme" style={{ marginTop: 6 }}>
+                        <strong>Theme label:</strong> {themeLabel}
+                        {themeLabel &&
+                          themeName &&
+                          themeLabel.toLowerCase() !== themeName.toLowerCase() && (
+                            <span style={{ color: "#b4533c" }}> (To look custom)</span>
+                          )}
+                      </div>
+                    )}
+
+                    {shopDomain && (
+                      <div className="theme" style={{ marginTop: 6 }}>
+                        <strong>Shopify store domain:</strong> {shopDomain}
+                      </div>
+                    )}
+
+                    <div className="theme" style={{ marginTop: 6 }}>
+                      <strong>Main domain name:</strong> {result.host}
+                    </div>
+                  </div>
+
+                  <div className="result-actions">
+                    {themeName && (
+                      <a
+                        href={`${AFFILIATE_BASE}?theme=${encodeURIComponent(themeName)}&site=${encodeURIComponent(
+                          result.host || ""
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn"
+                      >
+                        Get this theme
+                      </a>
+                    )}
+                    <button className="btn-outline" onClick={() => window.open("https://" + result.host, "_blank")}>
+                      Visit site
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
           </div>
-        )}
-
-
+        </div>
+      )}
 
       {/* Info Cards */}
       <div className="cards-grid">
@@ -241,7 +276,8 @@ export default function Home() {
                 <div>+</div>
               </div>
               <div className="a">
-                We scan HTML for <code>window.Shopify.theme</code>, <code>schema_name</code>, or <code>data-theme-name</code>.
+                We scan HTML for <code>window.Shopify.theme</code>, <code>schema_name</code>, or{" "}
+                <code>data-theme-name</code>.
               </div>
 
               <div className="q">
@@ -267,21 +303,21 @@ export default function Home() {
           <aside className="faq-side">
             <div className="side-card">
               <strong>Tip</strong>
-              <div style={{ color: "var(--muted)", marginTop: "6px", fontSize: "13px" }}>
+              <div style={{ color: "var(--muted)", marginTop: 6, fontSize: 13 }}>
                 Paste the store's root URL (example.com) for best results.
               </div>
             </div>
 
             <div className="side-card">
               <strong>Contact</strong>
-              <div style={{ color: "var(--muted)", marginTop: "6px", fontSize: "13px" }}>support@example.com</div>
+              <div style={{ color: "var(--muted)", marginTop: 6, fontSize: 13 }}>support@example.com</div>
             </div>
           </aside>
         </div>
       </section>
 
       {/* Footer */}
-      <footer>© 2025 ThemeSpot — designed with care</footer>
+      <footer>© {new Date().getFullYear()} ThemeSpot — designed with care</footer>
     </div>
   );
 }
