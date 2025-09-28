@@ -119,60 +119,7 @@ export default function Home() {
       </div>
 
       {/* Result */}
-      {result && (
-        <div className="wrap" style={{ marginTop: "20px" }}>
-          <div className="result-card">
-            <div
-              style={{
-                width: "72px",
-                height: "72px",
-                borderRadius: "12px",
-                background: "linear-gradient(135deg,var(--accent), var(--accent-2))",
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "700",
-                fontSize: "22px",
-              }}
-            >
-              🌐
-            </div>
-            <div className="result-meta">
-              <div className="site">{result.host} is using: {result.themeName || "Unknown"}</div>
-              {result.themeVersion && <div className="theme">Theme version: {result.themeVersion}</div>}
-              {result.themeLabel && (
-                <div className="theme">
-                  Theme label: {result.themeLabel}
-                  {result.themeLabel !== result.themeName && <span style={{ color: "brown" }}> (To look custom)</span>}
-                </div>
-              )}
-              {result.shopifyDomain && (
-                <div className="theme">Shopify store domain: {result.shopifyDomain}</div>
-              )}
-              <div className="theme">Main domain name: {result.host}</div>
-            </div>
-            <div className="result-actions">
-              <a
-                href={`${AFFILIATE_BASE}?theme=${encodeURIComponent(result.themeName || "shopify")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn"
-              >
-                Get this theme
-              </a>
-              <button
-                className="btn-outline"
-                onClick={() => window.open("https://" + result.host, "_blank")}
-              >
-                Visit site
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-
+     
  <main style={{ maxWidth: 980, margin: "6px auto 80px", padding: "0 18px" }}>
         {error && <div style={{ color: "red", textAlign: "center", marginTop: "20px" }}>Error: {error}</div>}
 
