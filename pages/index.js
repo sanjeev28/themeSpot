@@ -280,20 +280,27 @@ export default function Home() {
                 <div>+</div>
               </div>
               <div className="a">
-                We scan HTML for <code>window.Shopify.theme</code>, <code>schema_name</code>, or <code>data-theme-name</code>.
+                Use our free Shopify theme detector. Just paste the URL of the website and our theme finder will tell you the theme name in a few seconds.
               </div>
 
+
+<div className="q">
+                <h4>Is this Shopify theme detector free?</h4>
+                <div>+</div>
+              </div>
+              <div className="a">Yes, our Shopify theme checker is 100% free to use. You can perform unlimited theme lookups without any cost, registration, or hidden charges.</div>
+        
               <div className="q">
                 <h4>Is it always accurate?</h4>
                 <div>+</div>
               </div>
-              <div className="a">Not always. Heavily customized themes may look "custom".</div>
+              <div className="a">Not always. Heavily customised themes may look "custom". Our tool is highly accurate for themes from the Shopify Theme Store. It identifies themes by analyzing a site's code for unique fingerprints. Accuracy may vary for heavily customized or private themes.</div>
 
               <div className="q">
                 <h4>Do you store scanned site data?</h4>
                 <div>+</div>
               </div>
-              <div className="a">No, this demo does not store scan results.</div>
+              <div className="a">No, this site does not store scan results.</div>
 
               <div className="q">
                 <h4>Can I try the theme directly?</h4>
