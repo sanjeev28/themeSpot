@@ -234,6 +234,63 @@ export default function Home() {
         </div>
       )}
 
+{/* How It Works */}
+<div className="wrap" style={{ marginTop: 28 }}>
+  <div className="hiw-card">
+    {/* header */}
+    <div className="hiw-head">
+      <h3>How It Works</h3>
+      <span className="hiw-chevron" aria-hidden="true">⌃</span>
+    </div>
+
+    {/* content */}
+    <div className="hiw-grid">
+      {/* Step 1 */}
+      <div className="hiw-step">
+        <div className="hiw-ico">
+          {/* link icon */}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M10.6 13.4l2.8-2.8M8.5 8.5L6.7 10.3a4 4 0 105.7 5.7l1.8-1.8"
+                  stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            <path d="M15.5 15.5l1.8-1.8a4 4 0 10-5.7-5.7L9.8 9.8"
+                  stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
+        </div>
+        <h4>1. Enter URL</h4>
+        <p>Paste the full URL of the Shopify store you want to check.</p>
+      </div>
+
+      {/* Step 2 */}
+      <div className="hiw-step">
+        <div className="hiw-ico">
+          {/* search/question icon */}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.8"/>
+            <path d="M15.5 15.5L20 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+            <path d="M10.8 8.5c1.2 0 2 .7 2 1.6 0 .8-.5 1.2-1 1.5-.5.2-.8.5-.8 1v.4"
+                  stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+            <circle cx="10.8" cy="15.5" r=".9" fill="currentColor"/>
+          </svg>
+        </div>
+        <h4>2. Detect Theme</h4>
+        <p>Our tool analyzes the store&#39;s code to identify the theme.</p>
+      </div>
+
+      {/* Step 3 */}
+      <div className="hiw-step">
+        <div className="hiw-ico">
+          {/* check icon */}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M20 7l-9 9-4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <h4>3. Get Results</h4>
+        <p>View the theme name and a link to it on the Shopify Theme Store.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
       {/* Info Cards */}
       <div className="cards-grid">
         <div className="info-card">
